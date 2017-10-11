@@ -9,14 +9,28 @@ LGTM
 ## Example
 
 ```go
-import "github.com/chapsuk/wait"
+package main
 
-wg := wait.Group{}
+import (
+    "context"
+    "fmt"
 
-wg.Add(do.Func)
-wg.Add(func() {
-    do.FuncWithArgs(arg1, arg2)
-})
+    "github.com/chapsuk/wait"
+)
 
-wg.Wait()
+func do()                               { fmt.Print("do\n") }
+func doWithArgs(i, j int)               { fmt.Printf("doWith args: %d %d\n", i, j) }
+func doWithContext(ctx context.Context) { fmt.Printf("doWithContext\n") }
+
+func main() {
+    wg := wait.Group{}
+
+    wg.Add(do)
+    wg.Add(func() {
+        doWithArgs(1, 2)
+    })
+    wg.AddWithContext(context.TODO(), doWithContext)
+    wg.Wait()
+}
+
 ```
