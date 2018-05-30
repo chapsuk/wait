@@ -29,6 +29,20 @@ func (g *Group) AddWithContext(ctx context.Context, f func(context.Context)) {
 	}()
 }
 
+// AddMany running call group.Add count times
+func (g *Group) AddMany(count int, f func()) {
+	for i := 0; i < count; i++ {
+		g.Add(f)
+	}
+}
+
+// AddManyWithContext running call group.AddWithContext count times
+func (g *Group) AddManyWithContext(ctx context.Context, count int, f func(context.Context)) {
+	for i := 0; i < count; i++ {
+		g.AddWithContext(ctx, f)
+	}
+}
+
 // Wait blocks until all added functions will be completed
 func (g *Group) Wait() {
 	g.wg.Wait()

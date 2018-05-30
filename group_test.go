@@ -57,3 +57,22 @@ func TestAddWithContextFuncWaitForDone(t *testing.T) {
 	go cancel()
 	wg.Wait()
 }
+
+func TestAddMany(t *testing.T) {
+	var counter uint32
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	do := func() { atomic.AddUint32(&counter, 1) }
+	doCtx := func(context.Context) { do() }
+
+	wg := Group{}
+	wg.AddMany(100, do)
+	wg.AddManyWithContext(ctx, 100, doCtx)
+	wg.Wait()
+
+	if atomic.LoadUint32(&counter) != 200 {
+		t.Error()
+	}
+}

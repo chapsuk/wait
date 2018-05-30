@@ -31,7 +31,9 @@ func main() {
     wg.Add(func() {
         doWithArgs(1, 2)
     })
+    wg.AddMany(10, do)
     wg.AddWithContext(context.TODO(), doWithContext)
+    wg.AddManyWithContext(context.TODO(), 10, doWithContext)
     wg.Wait()
 }
 
