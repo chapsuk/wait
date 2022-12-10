@@ -3,6 +3,7 @@ package wait
 import (
 	"context"
 	"sync"
+	"time"
 )
 
 // Group is wrapper over sync.WaitGroup
@@ -46,4 +47,23 @@ func (g *Group) AddManyWithContext(ctx context.Context, count int, f func(contex
 // Wait blocks until all added functions will be completed
 func (g *Group) Wait() {
 	g.wg.Wait()
+}
+
+// WaitTimeout waits works group and return error by timeout if some goroutine dont finished
+func (g *Group) WaitTimeout(timeout time.Duration) error {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	done := make(chan struct{})
+	go func() {
+		g.wg.Wait()
+		close(done)
+	}()
+
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-done:
+		return nil
+	}
 }
